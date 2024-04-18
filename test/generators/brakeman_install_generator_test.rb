@@ -33,7 +33,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
         assert_match(/- reports\/brakeman\.html/, content)
       end
 
-      assert_no_file '.github/workflows/scan.yml'
+      assert_no_file '.github/workflows/brakeman.yml'
       assert_no_file '.gitlab-ci.yml'
     end
   end
@@ -42,7 +42,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
     Dir.chdir(app_path) do
       quietly { run_generator [destination_root, "--skip_config"] }
 
-      assert_no_file '.github/workflows/scan.yml'
+      assert_no_file '.github/workflows/brakeman.yml'
       assert_no_file '.gitlab-ci.yml'
       assert_no_file 'config/brakeman.yml'
     end
@@ -55,7 +55,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
       assert_file 'config/brakeman.yml'
       assert_no_file '.gitlab-ci.yml'
 
-      assert_file '.github/workflows/scan.yml' do |content|
+      assert_file '.github/workflows/brakeman.yml' do |content|
         assert_match(/name: Scan/, content)
         assert_match(/- name: Scan for security vulnerabilities/, content)
         assert_match(/run: bundle exec brakeman/, content)
@@ -68,7 +68,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
       quietly { run_generator [destination_root, "--gitlab"] }
 
       assert_file 'config/brakeman.yml'
-      assert_no_file '.github/workflows/scan.yml'
+      assert_no_file '.github/workflows/brakeman.yml'
 
       assert_file '.gitlab-ci.yml' do |content|
         assert_match(/stage: scan/, content)
@@ -85,7 +85,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
 
       stages_configuration = <<~RUBY
         stages:
-          - scan
+          - brakeman
       RUBY
 
       assert_file '.gitlab-ci.yml' do |content|

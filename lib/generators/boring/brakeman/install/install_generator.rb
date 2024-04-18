@@ -31,7 +31,7 @@ module Boring
       def configure_brakeman
         return if options[:skip_config]
 
-        say 'Copying Brakeman configuration', :green
+        say 'Setting up Brakeman', :green
 
         template 'brakeman.yml', 'config/brakeman.yml'
       end
@@ -41,9 +41,9 @@ module Boring
 
         @ruby_version = options[:ruby_version] ? options[:ruby_version] : DEFAULT_RUBY_VERSION
 
-        say 'Copying GitHub Actions configuration', :green
+        say 'Adding Brakeman configurations to .github/workflows/brakeman.yml', :green
 
-        template 'github/scan.yml', '.github/workflows/scan.yml'
+        template 'github/brakeman.yml', '.github/workflows/brakeman.yml'
       end
 
       def configure_gitlab_ci_for_brakeman
@@ -51,7 +51,7 @@ module Boring
 
         @ruby_version = options[:ruby_version] ? options[:ruby_version] : DEFAULT_RUBY_VERSION
 
-        say 'Copying GitLab CI configuration', :green
+        say 'Adding Brakeman configurations to .gitlab-ci.yml', :green
 
         ci_file_content = <<~RUBY
           scan:
@@ -65,14 +65,14 @@ module Boring
 
         stages_configuration = <<~RUBY
           stages:
-            - scan
+            - brakeman
         RUBY
 
         if File.exist?('.gitlab-ci.yml')
           gitlab_ci_file = YAML.safe_load(File.open(".gitlab-ci.yml"), aliases: true) || {}
 
           if gitlab_ci_file['stages']
-            if gitlab_ci_file['stages'].include?('scan')
+            if gitlab_ci_file.include?('brakeman')
               say 'The scan stage already exists in the Gitlab CI configuration file', :yellow
             
               return
