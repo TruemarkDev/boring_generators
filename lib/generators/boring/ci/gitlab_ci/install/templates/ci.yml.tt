@@ -1,0 +1,54 @@
+variables:
+  BASE_DOCKER_IMAGE: <%= @ruby_version %>
+
+stages:
+  - lint
+  - test
+
+pronto:
+  # extends: .base
+  stage: lint
+  image: $BASE_DOCKER_IMAGE
+  before_script:
+    # Install cmake required for rugged gem (Pronto depends on it)
+    - apt-get update && apt-get install -y cmake
+    - bundle config set path 'vendor'
+    # use bundler version same as the one that bundled the Gemfile
+    - gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" --no-document
+    - bundle config set --local path 'vendor'
+    - bundle install --jobs $(nproc)
+    - git fetch origin
+  variables:
+    PRONTO_GITLAB_API_PRIVATE_TOKEN: $PRONTO_ACCESS_TOKEN
+  script:
+    # Run pronto on branch of current merge request
+    - bundle exec pronto run -f gitlab_mr -c origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+  only:
+    variables:
+      - $RUN_LINT
+
+tests:
+  image: $BASE_DOCKER_IMAGE
+  variables:
+    # set Rails environment so we don't have to prefix each command with RAILS_ENV=test
+    RAILS_ENV: test
+    POSTGRES_HOST_AUTH_METHOD: trust
+  stage: test
+  before_script:
+    - gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" --no-document
+    - bundle config set --local path 'vendor'
+    - apt-get update -qq && apt-get install -y -qq nodejs cmake
+    - bundle install --jobs $(nproc)
+    - curl -o- -L https://yarnpkg.com/install.sh | bash
+    - export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+    - yarn install
+    - cp config/database.yml.ci config/database.yml
+    - cat $env > .env
+    - bundle exec rails db:create
+    - bundle exec rails db:schema:load
+    - bundle exec rails assets:precompile
+  script:
+    - <%= @run_test_command %>
+  only:
+    variables:
+      - $RUN_TEST
