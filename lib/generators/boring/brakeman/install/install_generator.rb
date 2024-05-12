@@ -8,19 +8,14 @@ module Boring
 
       RUBY_VERSION_FILE = '.ruby-version'
 
-      DEFAULT_RUBY_VERSION = '.ruby-version'
-
       class_option :skip_config, type: :boolean, aliases: '-c',
-                                                desc: 'Skip adding Brakeman configuration. Defaults to false'
-
-      class_option :github, type: :boolean, aliases: '-gh',
-                                                desc: 'Add GitHub Actions configuration. Defaults to false'
-
-      class_option :gitlab, type: :boolean, aliases: '-gl',
-                                                desc: 'Add GitLab CI configuration. Defaults to false'
-
+                                 desc: 'Skip adding Brakeman configuration. Defaults to false'
+      class_option :ci, type: :string, aliases: '-ci',
+                        enum: %w[gitlab github none],
+                        default: 'none',
+                        desc: 'Tell us which git repository to configure.'
       class_option :ruby_version, type: :string, aliases: '-v',
-                                                 desc: 'Tell us the ruby version which you use for the application. Default to Ruby #{DEFAULT_RUBY_VERSION}, which will cause the action to use the version specified in the #{RUBY_VERSION_FILE} file.'
+                                  desc: "Tell us the ruby version which you use for the application. Defaults to the ruby version in your app's Gemfile"
 
       def add_brakeman_gem
         say 'Adding Brakeman gem', :green
@@ -36,10 +31,18 @@ module Boring
         template 'brakeman.yml', 'config/brakeman.yml'
       end
 
-      def configure_github_actions_for_brakeman
-        return unless options[:github]
+      def configure_git_repository_ci
+        if options[:ci] == 'github'
+          configure_github_actions_for_brakeman
+        elsif options[:ci] == 'gitlab'
+          configure_gitlab_ci_for_brakeman
+        end
+      end
 
-        @ruby_version = options[:ruby_version] ? options[:ruby_version] : DEFAULT_RUBY_VERSION
+      private
+
+      def configure_github_actions_for_brakeman
+        @ruby_version = options[:ruby_version]
 
         say 'Adding Brakeman configurations to .github/workflows/brakeman.yml', :green
 
@@ -47,9 +50,7 @@ module Boring
       end
 
       def configure_gitlab_ci_for_brakeman
-        return unless options[:gitlab]
-
-        @ruby_version = options[:ruby_version] ? options[:ruby_version] : DEFAULT_RUBY_VERSION
+        @ruby_version = options[:ruby_version]
 
         say 'Adding Brakeman configurations to .gitlab-ci.yml', :green
 
@@ -69,18 +70,18 @@ module Boring
         RUBY
 
         if File.exist?('.gitlab-ci.yml')
-          gitlab_ci_file = YAML.safe_load(File.open(".gitlab-ci.yml"), aliases: true) || {}
+          gitlab_ci_file = YAML.safe_load(File.open('.gitlab-ci.yml'), aliases: true) || {}
 
           if gitlab_ci_file['stages']
             if gitlab_ci_file.include?('brakeman')
-              say 'The scan stage already exists in the Gitlab CI configuration file', :yellow
-            
+              say 'Configuration for brakeman already exists in .gitlab-ci.yml', :yellow
+
               return
             else
-              inject_into_file ".gitlab-ci.yml", optimize_indentation("\n- scan", 2).chomp, after: /stages:/
+              inject_into_file '.gitlab-ci.yml', optimize_indentation("\n- scan", 2).chomp, after: /stages:/
             end
           else
-            prepend_to_file ".gitlab-ci.yml", "#{stages_configuration}\n"
+            prepend_to_file '.gitlab-ci.yml', "#{stages_configuration}\n"
           end
 
           append_to_file '.gitlab-ci.yml', ci_file_content

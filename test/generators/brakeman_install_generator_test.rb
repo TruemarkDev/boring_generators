@@ -14,7 +14,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
     app_path
   end
 
-  def test_should_add_brakeman_gem
+  def test_should_configure_brakeman
     Dir.chdir(app_path) do
       quietly { generator.add_brakeman_gem }
 
@@ -50,7 +50,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
 
   def test_should_add_github_actions_configurations_for_brakeman
     Dir.chdir(app_path) do
-      quietly { run_generator [destination_root, "--github"] }
+      quietly { run_generator [destination_root, "--ci=github"] }
 
       assert_file 'config/brakeman.yml'
       assert_no_file '.gitlab-ci.yml'
@@ -65,7 +65,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
 
   def test_should_add_gitlab_ci_configurations_for_brakeman
     Dir.chdir(app_path) do
-      quietly { run_generator [destination_root, "--gitlab"] }
+      quietly { run_generator [destination_root, "--ci=gitlab"] }
 
       assert_file 'config/brakeman.yml'
       assert_no_file '.github/workflows/brakeman.yml'
@@ -81,7 +81,7 @@ class AuditInstallGeneratorTest < Rails::Generators::TestCase
     Dir.chdir(app_path) do
       create_gitlab_ci_file
 
-      run_generator [destination_root, "--gitlab"]
+      run_generator [destination_root, "--ci=gitlab"]
 
       stages_configuration = <<~RUBY
         stages:
