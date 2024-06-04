@@ -94,6 +94,7 @@ The boring generator introduces following generators:
 - Install Sentry: `rails generate boring:sentry:install --use_env_variable --breadcrumbs_logger=<breadcrumbs_logger_options>`
 - Install Dotenv: `rails generate boring:dotenv:install`
 - Install Honeybadger: `rails generate boring:honeybadger:install`
+- Install Brakeman: `rails generate boring:brakeman:install --skip_config --ci=<github or gitlab> --ruby_version=<ruby_version>`
 
 ## Screencasts
 

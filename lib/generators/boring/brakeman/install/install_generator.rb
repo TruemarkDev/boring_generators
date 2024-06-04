@@ -1,21 +1,22 @@
 # frozen_string_literal: true
 
+require 'boring_generators/generator_helper'
+
 module Boring
   module Brakeman
     class InstallGenerator < Rails::Generators::Base
       desc 'Adds Brakeman to the application'
       source_root File.expand_path('templates', __dir__)
 
-      RUBY_VERSION_FILE = '.ruby-version'
-
       class_option :skip_config, type: :boolean, aliases: '-c',
                                  desc: 'Skip adding Brakeman configuration. Defaults to false'
-      class_option :ci, type: :string, aliases: '-ci',
-                        enum: %w[gitlab github none],
-                        default: 'none',
+      class_option :ci, type: :string,
+                        enum: %w[gitlab github],
                         desc: 'Tell us which git repository to configure.'
       class_option :ruby_version, type: :string, aliases: '-v',
                                   desc: "Tell us the ruby version which you use for the application. Defaults to the ruby version in your app's Gemfile"
+
+      include BoringGenerators::GeneratorHelper
 
       def add_brakeman_gem
         say 'Adding Brakeman gem', :green
@@ -42,7 +43,9 @@ module Boring
       private
 
       def configure_github_actions_for_brakeman
-        @ruby_version = options[:ruby_version]
+        return unless options[:ci]
+
+        @ruby_version = options[:ruby_version] || app_ruby_version
 
         say 'Adding Brakeman configurations to .github/workflows/brakeman.yml', :green
 
@@ -50,7 +53,9 @@ module Boring
       end
 
       def configure_gitlab_ci_for_brakeman
-        @ruby_version = options[:ruby_version]
+        return unless options[:ci]
+
+        @ruby_version = options[:ruby_version] || app_ruby_version
 
         say 'Adding Brakeman configurations to .gitlab-ci.yml', :green
 
