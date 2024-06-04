@@ -6,7 +6,7 @@ module Boring
       desc 'Adds rack-cors gem to the app'
       source_root File.expand_path("templates", __dir__)
 
-      class_option :origins, type: :string, default: '*',
+      class_option :origins, type: :array, default: ['*'],
                    desc: 'Specify which origins are allowed to make CORS requests'
 
       def add_rack_cors_gem
@@ -18,17 +18,16 @@ module Boring
       def configure_rack_cors
         say 'Configuring Rack CORS', :green
 
-        @origins = options[:origins].split(' ').map { |origin| "'#{origin.strip}'" }.join(', ')
+        @origins = options[:origins].map { |origin| "'#{origin}'" }.join(', ')
 
         template 'cors.rb', 'config/initializers/cors.rb'
-
-        show_alert_message
+        show_readme
       end
 
       private
 
-      def show_alert_message
-        say "❗️❗️\nPlease restart your rails server for the changes to take effect.\n", :yellow
+      def show_readme
+        readme 'README'
       end
     end
   end

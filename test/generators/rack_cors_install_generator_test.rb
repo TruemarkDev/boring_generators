@@ -29,8 +29,8 @@ class RackCorsInstallGeneratorTest < Rails::Generators::TestCase
   end
 
   def test_should_configure_custom_origins
-    Dir.chdir(app_path ) do
-      quietly { run_generator [destination_root, "--origins=localhost:3000 example.com"] }
+    Dir.chdir(app_path) do
+      quietly { run_generator %w[--origins=localhost:3000 example.com] }
 
       assert_file 'config/initializers/cors.rb' do |content|
         assert_match(/Rails.application.config.middleware.insert_before 0, Rack::Cors do/, content)
