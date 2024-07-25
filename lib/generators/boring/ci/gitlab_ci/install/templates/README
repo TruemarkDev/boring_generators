@@ -1,0 +1,10 @@
+===============================================================================
+
+Please add your Gitlab personal access token under the variable `PRONTO_ACCESS_TOKEN`
+in project variables in order to configure linting in the project.
+
+Also, please add variables `RUN_TEST` and `RUN_LINT` in your CI/CD variables in order to run
+the lint and test stages as required and also make sure to add the environment 
+variables under `env` variable in CI/CD.
+
+===============================================================================

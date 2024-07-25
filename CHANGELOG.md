@@ -11,6 +11,7 @@
 * Adds Sentry generator. ([@mausamp][])
 * Adds Dotenv generator. ([@mausamp][])
 * Adds Honeybadger generator. ([@mausamp][])
+* Adds Gitlab CI generator. ([@mausamp][])
 * Adds Rails ERD generator. ([@mausamp][])
 * Adds Annotate Generator. ([@TheZero0-ctrl][])
 
