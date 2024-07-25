@@ -95,6 +95,8 @@ The boring generator introduces following generators:
 - Install Dotenv: `rails generate boring:dotenv:install`
 - Install Honeybadger: `rails generate boring:honeybadger:install`
 - Install Gitlab CI: `rails generate boring:ci:gitlab_ci:install`
+- Install Rails ERD: `rails generate boring:rails_erd:install`
+- Install Annotate: `rails generate boring:annotate:install`
 
 ## Screencasts
 
