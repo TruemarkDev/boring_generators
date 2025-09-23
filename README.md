@@ -98,6 +98,7 @@ The boring generator introduces following generators:
 - Install Annotate: `rails generate boring:annotate:install`
 - Install CanCanCan: `rails generate boring:cancancan:install`
 - Install Gitlab CI: `rails generate boring:ci:gitlab_ci:install`
+- Install Sidekiq: `rails generate boring:sidekiq:install`
 
 ## Screencasts
 

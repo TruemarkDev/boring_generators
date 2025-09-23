@@ -2,6 +2,7 @@
 
 ## master (unreleased)
 
+* Adds Sidekiq generator. ([@TheZero0-ctrl][])
 * Update Tailwind generator to use tailwindcss-rails gem instead of manually installing everything via npm ([@coolprobn][])
 * Fixed callback method name for Google OAuth2 Omniauth ([@coezbek][] & [@coolprobn][])
 
